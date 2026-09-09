@@ -99,5 +99,7 @@ Stop mining immediately with `Ctrl+C`.
 - The app does not support hidden or stealth operation.
 
 ## License
-
-This project is distributed under the MIT License. See [LICENSE](./LICENSE).
+VANTAXMR SOFTWARE LICENSE
+Copyright © 2026 JaesRegret & Vze7. All rights reserved.
+...
+Vanta is **proprietary software**. See [LICENSE](./LICENSE).
