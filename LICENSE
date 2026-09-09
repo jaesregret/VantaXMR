@@ -1,12 +1,187 @@
-## License
+# VANTA XMR MINER - SOFTWARE LICENSE
 
-[#license](#license)
+Copyright © 2026 JaesRegret & Vze7. All rights reserved.
 
-This project is **proprietary software**. 
+---
 
-Public source code is made available for viewing and educational purposes only. 
-You may **not** copy, modify, distribute, fork, or commercially use the Software 
-without prior written permission.
+## 1. GRANT OF LICENSE
 
-See [LICENSE](https://github.com/jaesregret/VantaXMR/blob/main/LICENSE) 
-for complete terms.
+1.1 The Proprietor grants you a limited, non-exclusive, non-transferable license to download, install and execute the Vanta software (the "Software") on your personal computer or device.
+
+1.2 You may run the Software on your own hardware to mine Monero (XMR) cryptocurrency for your personal benefit.
+
+1.3 This license is personal and cannot be shared, transferred or sublicensed to any other individual or entity.
+
+---
+
+## 2. PERMITTED USE
+
+2.1 You are authorized to:
+- Download and install the Software on your computer(s);
+- Execute the Software to mine XMR cryptocurrency;
+- Use your CPU, GPU or other processing resources;
+- Run the Software continuously or intermittently;
+- Use any computing power you own or have authorized access to.
+
+2.2 The Software may be used for:
+- Personal mining operations;
+- Solo mining or pool mining;
+- Any legitimate Monero mining activity.
+
+---
+
+## 3. INTELLECTUAL PROPERTY - CODE PROTECTION
+
+3.1 **UNDER NO CIRCUMSTANCES may you:**
+
+- Copy, reproduce, modify, adapt, or create derivative works from the Software or its source code;
+- Distribute, publish, or share the Software, its source code, or modified versions on any platform;
+- Create, maintain, or distribute forks or branches of the Software;
+- Use the Software or its source code as the basis for another miner or software project;
+- Remove, obscure, or alter copyright notices, license notices, or other proprietary notices;
+- Decompile, disassemble, or reverse engineer the Software;
+- Extract, reuse, or repurpose any component of the source code.
+
+3.2 The source code remains the exclusive intellectual property of JaesRegret.
+
+3.3 Violation of this section will result in immediate termination and legal action.
+
+---
+
+## 4. TRADEMARK PROTECTION
+
+4.1 "Vanta" is an exclusive trademark of JaesRegret.
+
+4.2 You may not:
+- Use the "Vanta" name for derivative projects;
+- Claim authorship or ownership of Vanta;
+- Imply official affiliation or endorsement;
+- Create competing miners with similar branding.
+
+---
+
+## 5. HARDWARE AND USAGE RIGHTS
+
+5.1 **Your Rights:**
+
+- Use 100% of your hardware's processing power;
+- Mine directly to your own wallet address;
+- Receive 100% of mining rewards;
+- Use any mining pool or solo mining method;
+- Run multiple instances if your hardware permits.
+
+5.2 **Hardware Requirements:**
+
+- Must be your own hardware or hardware you have authorization to use;
+- Cannot use rented cloud servers or VPS without explicit permission;
+- Cannot use borrowed or shared computers without owner consent.
+
+---
+
+## 6. NO RESTRICTIONS ON HARDWARE USAGE
+
+6.1 The Proprietor makes no claims to:
+- Your mining rewards;
+- Computational power used;
+- GPU/CPU resources utilized;
+- Generated cryptocurrency;
+- Mining pool accounts or wallets.
+
+6.2 100% of all mining output belongs to you.
+
+6.3 This is a mining tool - you use your own hardware, you keep all profits.
+
+---
+## 7. FEES AND COMMISSIONS
+
+7.1 No fees, commissions or percentages are charged for mining rewards.
+
+7.2 No performance fees or developer fees are embedded in the Software.
+
+7.3 What you mine is entirely yours.
+
+---
+
+## 8. PROHIBITED ACTIVITIES
+
+8.1 You may NOT:
+- Redistribute the Software without permission;
+- Sell, rent or lease copies of the Software;
+- Include the Software in commercial packages;
+- Use the Software as part of a service (mining-as-a-service);
+- Modify and redistribute the Software;
+- Create wrapper scripts that claim authorship;
+- Bundle with other software and distribute.
+
+8.2 If you want to share: Direct users to the official Vanta repository only.
+
+---
+
+## 9. TERMINATION
+
+9.1 This license is terminated immediately if you:
+- Reverse engineer or attempt to extract the source code;
+- Distribute the Software or source code;
+- Create derivative versions;
+- Violate trademark protections;
+- Breach any provision of this agreement.
+
+9.2 Upon termination, you must delete all copies of the Software.
+
+9.3 The Proprietor reserves the right to revoke license keys or disable the Software remotely.
+
+---
+
+## 10. WARRANTY DISCLAIMER
+
+10.1 **THE SOFTWARE IS PROVIDED "AS IS" WITHOUT WARRANTIES.**
+
+10.2 The Proprietor is not liable for:
+
+- Hardware damage or failure;
+- Electricity costs or power consumption;
+- Lost mining rewards;
+- Network connectivity issues;
+- Cryptocurrency market fluctuations;
+- Pool payment delays or issues;
+- Blockchain network problems.
+
+---
+
+## 11. DISCLAIMER OF LIABILITY
+
+11.1 The Proprietor shall NOT be liable for:
+- Any hardware damage from mining;
+- Overheating or degradation of components;
+- Electricity costs incurred;
+- Lost or stolen cryptocurrency;
+- Any indirect or consequential damages.
+
+11.2 Mining is at your own risk.
+
+---
+## 12. GOVERNING LAW
+
+12.1 This Agreement is governed by the laws applicable to the Proprietor's jurisdiction.
+
+12.2 Any legal action shall be brought exclusively in competent courts.
+
+---
+## 13. BRANDING AND IMAGERY
+
+The Vanta logo and banner image were generated using OpenAI's DALL-E model via ChatGPT. Under OpenAI's Terms of Service, the user who generated the image retains ownership and commercial usage rights to the generated output.
+For OpenAI's complete terms: https://openai.com/policies/terms-of-use
+
+---
+## 14. THIRD-PARTY SOFTWARE
+Vanta uses third-party software and libraries which remain subject to their respective licenses.
+See `THIRD-PARTY-NOTICES.md` for complete attribution and licensing details.
+
+---
+## 15. MODIFICATIONS TO THIS LICENSE
+The Proprietor reserves the right to modify this License at any time. Material changes will be reflected in future releases.
+
+---
+**Copyright © 2026 JaesRegret & Vze7. All rights reserved.**
+
+Last updated: September 2026
