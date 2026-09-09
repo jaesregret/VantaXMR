@@ -5,7 +5,7 @@
     "WalletAddress": "",
     "Pool": {
       "Host": "pool.supportxmr.com",
-      "Port": 443,
+      "Port": 3333,
       "Tls": true
     },
     "Threads": 0,

@@ -4,10 +4,16 @@ namespace Vanta.Mining;
 
 public sealed class RandomXAlgorithm : IMiningAlgorithm
 {
-    private IntPtr _cache;
+    private readonly RandomXCache? _sharedCache;
+    private RandomXCache? _ownedCache;
     private IntPtr _vm;
     private byte[]? _seedHash;
     private bool _initialized;
+
+    public RandomXAlgorithm(RandomXCache? sharedCache = null)
+    {
+        _sharedCache = sharedCache;
+    }
 
     public string Name => "RandomX";
 
@@ -18,47 +24,24 @@ public sealed class RandomXAlgorithm : IMiningAlgorithm
             return;
         }
 
-        if (_initialized)
-        {
-            Dispose();
-        }
-
         if (seedHash.Length is not (0 or 32))
         {
             throw new ArgumentException("RandomX seed hash must be exactly 32 bytes.", nameof(seedHash));
         }
 
-        try
-        {
-            _cache = NativeMethods.randomx_alloc_cache(NativeMethods.randomx_get_flags());
-        }
-        catch (DllNotFoundException ex)
-        {
-            throw new PlatformNotSupportedException(
-                "The official RandomX native library was not found. Install a compatible librandomx binary before mining.", ex);
-        }
-        catch (BadImageFormatException ex)
-        {
-            throw new PlatformNotSupportedException(
-                "The RandomX native library does not match the process architecture.", ex);
-        }
-        if (_cache == IntPtr.Zero)
-        {
-            throw new InvalidOperationException("RandomX cache allocation failed.");
-        }
-
         var key = seedHash.Length == 0 ? new byte[32] : seedHash.ToArray();
-        NativeMethods.randomx_init_cache(_cache, key, (nuint)key.Length);
+        DestroyVm();
+
+        var cache = _sharedCache ?? (_ownedCache ??= new RandomXCache());
+        cache.Initialize(key);
         _seedHash = key;
         _vm = NativeMethods.randomx_create_vm(
             NativeMethods.randomx_get_flags() | NativeMethods.RandomXFlags.Jit,
-            _cache,
+            cache.Handle,
             IntPtr.Zero);
 
         if (_vm == IntPtr.Zero)
         {
-            NativeMethods.randomx_release_cache(_cache);
-            _cache = IntPtr.Zero;
             throw new InvalidOperationException("RandomX VM creation failed.");
         }
 
@@ -87,21 +70,28 @@ public sealed class RandomXAlgorithm : IMiningAlgorithm
     {
         if (_vm != IntPtr.Zero)
         {
-            NativeMethods.randomx_destroy_vm(_vm);
-            _vm = IntPtr.Zero;
+            DestroyVm();
         }
 
-        if (_cache != IntPtr.Zero)
-        {
-            NativeMethods.randomx_release_cache(_cache);
-            _cache = IntPtr.Zero;
-        }
-
+        _ownedCache?.Dispose();
+        _ownedCache = null;
         _initialized = false;
         _seedHash = null;
     }
 
-    private static class NativeMethods
+    private void DestroyVm()
+    {
+        if (_vm == IntPtr.Zero)
+        {
+            return;
+        }
+
+        NativeMethods.randomx_destroy_vm(_vm);
+        _vm = IntPtr.Zero;
+        _initialized = false;
+    }
+
+    internal static class NativeMethods
     {
         [Flags]
         public enum RandomXFlags : uint

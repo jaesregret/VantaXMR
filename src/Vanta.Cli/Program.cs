@@ -180,7 +180,7 @@ public static class VantaApplication
 
         try
         {
-            var result = BenchmarkRunner.Run(threads, TimeSpan.FromSeconds(seconds), new RandomXAlgorithm());
+            var result = BenchmarkRunner.Run(threads, TimeSpan.FromSeconds(seconds));
             Console.WriteLine($"Threads:         {result.Threads}");
             Console.WriteLine($"Duration:        {result.Duration.TotalSeconds:F2}s");
             Console.WriteLine($"Hashes:          {result.TotalHashes}");
