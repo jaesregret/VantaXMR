@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Vanta.Mining</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="$(MSBuildProjectDirectory)\..\..\RandomX\build\Release\randomx.dll"
+          Link="randomx.dll"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest"
+          Condition="Exists('$(MSBuildProjectDirectory)\..\..\RandomX\build\Release\randomx.dll')" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vanta.Core\Vanta.Core.csproj" />
+    <ProjectReference Include="..\Vanta.Network\Vanta.Network.csproj" />
+  </ItemGroup>
+
+</Project>

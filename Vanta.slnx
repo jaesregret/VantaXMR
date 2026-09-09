@@ -1,0 +1,15 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Vanta.Cli/Vanta.Cli.csproj" />
+    <Project Path="src/Vanta.Configuration/Vanta.Configuration.csproj" />
+    <Project Path="src/Vanta.Core/Vanta.Core.csproj" />
+    <Project Path="src/Vanta.Infrastructure/Vanta.Infrastructure.csproj" />
+    <Project Path="src/Vanta.Mining/Vanta.Mining.csproj" />
+    <Project Path="src/Vanta.Network/Vanta.Network.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Vanta.Configuration.Tests/Vanta.Configuration.Tests.csproj" />
+    <Project Path="tests/Vanta.Core.Tests/Vanta.Core.Tests.csproj" />
+    <Project Path="tests/Vanta.Mining.Tests/Vanta.Mining.Tests.csproj" />
+  </Folder>
+</Solution>

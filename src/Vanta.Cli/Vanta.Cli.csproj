@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Vanta.Cli</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vanta.Configuration\Vanta.Configuration.csproj" />
+    <ProjectReference Include="..\Vanta.Core\Vanta.Core.csproj" />
+    <ProjectReference Include="..\Vanta.Infrastructure\Vanta.Infrastructure.csproj" />
+    <ProjectReference Include="..\Vanta.Mining\Vanta.Mining.csproj" />
+    <ProjectReference Include="..\Vanta.Network\Vanta.Network.csproj" />
+  </ItemGroup>
+
+</Project>

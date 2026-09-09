@@ -1,0 +1,14 @@
+{
+  "Mining": {
+    "Coin": "XMR",
+    "Algorithm": "RandomX",
+    "WalletAddress": "",
+    "Pool": {
+      "Host": "pool.supportxmr.com",
+      "Port": 443,
+      "Tls": true
+    },
+    "Threads": 0,
+    "DonateLevel": 0
+  }
+}
