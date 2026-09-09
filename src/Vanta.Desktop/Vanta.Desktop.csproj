@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Vanta.Desktop</RootNamespace>
+    <AssemblyName>Vanta</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Vanta.Core\Vanta.Core.csproj" />
+    <ProjectReference Include="..\Vanta.Infrastructure\Vanta.Infrastructure.csproj" />
+    <ProjectReference Include="..\Vanta.Mining\Vanta.Mining.csproj" />
+    <ProjectReference Include="..\Vanta.Network\Vanta.Network.csproj" />
+  </ItemGroup>
+
+</Project>

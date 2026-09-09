@@ -92,7 +92,8 @@ public static class VantaApplication
 
         try
         {
-            using var algorithm = new RandomXAlgorithm();
+            using var cache = new RandomXCache();
+            using var algorithm = new RandomXAlgorithm(cache);
             using var pool = new StratumPoolClient(config.Pool.Host, config.Pool.Port, config.Pool.Tls, config.WalletAddress);
             pool.ShareResultReceived += (_, result) => statistics.RecordShare(result.Accepted);
             using var workerPool = new MiningWorkerPool(
@@ -100,42 +101,32 @@ public static class VantaApplication
                 finalThreads,
                 statistics,
                 (share, token) => pool.SubmitShareAsync(share, token),
-                () => new RandomXAlgorithm());
+                () => new RandomXAlgorithm(cache));
             await pool.ConnectAsync(tokenSource.Token);
             await workerPool.StartAsync(tokenSource.Token);
+            var jobReader = ReadJobsAsync(pool, workerPool, tokenSource.Token);
 
             Console.WriteLine("Status: MINING");
             Console.WriteLine("Press Ctrl+C to stop mining immediately.");
 
-            while (!tokenSource.IsCancellationRequested)
+            try
             {
-                if (pool.IsConnected)
+                while (!tokenSource.IsCancellationRequested)
                 {
-                    var job = await pool.ReadJobAsync(tokenSource.Token);
-                    if (job is not null)
-                    {
-                        workerPool.AssignJob(job);
-                    }
+                    RenderMiningStatus(config, finalThreads, statistics, tokenSource.IsCancellationRequested);
+                    await Task.Delay(1000, tokenSource.Token);
                 }
-
-                Console.SetCursorPosition(0, 0);
-                Console.WriteLine("VANTA");
-                Console.WriteLine("Cryptocurrency CPU Miner");
-                Console.WriteLine();
-                Console.WriteLine($"Coin:       {config.Coin}");
-                Console.WriteLine($"Algorithm:  {config.Algorithm}");
-                Console.WriteLine($"Pool:       {config.Pool.Host}:{config.Pool.Port}");
-                Console.WriteLine($"Threads:    {finalThreads}");
-                Console.WriteLine($"Wallet:     {WalletAddressValidator.Redact(config.WalletAddress)}");
-                Console.WriteLine();
-                Console.WriteLine($"Status:     {(tokenSource.IsCancellationRequested ? "STOPPING" : "MINING")}");
-                Console.WriteLine($"Hashrate:   {statistics.CurrentHashrate:F2} H/s");
-                Console.WriteLine($"Accepted:   {statistics.AcceptedShares}");
-                Console.WriteLine($"Rejected:   {statistics.RejectedShares}");
-                Console.WriteLine($"Uptime:     {statistics.Uptime.ToString(@"hh\:mm\:ss")}");
-                Console.WriteLine();
-                Console.WriteLine("Ctrl+C to stop mining.");
-                await Task.Delay(1000, tokenSource.Token);
+            }
+            finally
+            {
+                tokenSource.Cancel();
+                try
+                {
+                    await jobReader;
+                }
+                catch (OperationCanceledException) when (tokenSource.IsCancellationRequested)
+                {
+                }
             }
         }
         catch (OperationCanceledException)
@@ -151,6 +142,50 @@ public static class VantaApplication
         }
 
         return 0;
+    }
+
+    private static async Task ReadJobsAsync(
+        StratumPoolClient pool,
+        MiningWorkerPool workerPool,
+        CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            var job = await pool.ReadJobAsync(cancellationToken);
+            if (job is not null)
+            {
+                workerPool.AssignJob(job);
+            }
+        }
+    }
+
+    private static void RenderMiningStatus(
+        MiningConfiguration config,
+        int threads,
+        MiningStatistics statistics,
+        bool stopping)
+    {
+        if (!Console.IsOutputRedirected)
+        {
+            Console.Clear();
+        }
+        Console.WriteLine("VANTA");
+        Console.WriteLine("Cryptocurrency CPU Miner");
+        Console.WriteLine();
+        Console.WriteLine($"Coin:       {config.Coin}");
+        Console.WriteLine($"Algorithm:  {config.Algorithm}");
+        Console.WriteLine($"Pool:       {config.Pool.Host}:{config.Pool.Port}");
+        Console.WriteLine($"Threads:    {threads}");
+        Console.WriteLine($"Wallet:     {WalletAddressValidator.Redact(config.WalletAddress)}");
+        Console.WriteLine();
+        Console.WriteLine($"Status:     {(stopping ? "STOPPING" : "MINING")}");
+        Console.WriteLine($"Hashes:     {statistics.TotalHashes}");
+        Console.WriteLine($"Hashrate:   {statistics.CurrentHashrate:F2} H/s");
+        Console.WriteLine($"Accepted:   {statistics.AcceptedShares}");
+        Console.WriteLine($"Rejected:   {statistics.RejectedShares}");
+        Console.WriteLine($"Uptime:     {statistics.Uptime.ToString(@"hh\:mm\:ss")}");
+        Console.WriteLine();
+        Console.WriteLine("Ctrl+C to stop mining.");
     }
 
     private static async Task<int> BenchmarkCommandAsync(CliArgumentParser parser)

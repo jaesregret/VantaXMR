@@ -26,4 +26,19 @@ public class MiningStatisticsTests
         Assert.Equal(1, stats.AcceptedShares);
         Assert.Equal(1, stats.RejectedShares);
     }
+
+    [Fact]
+    public void RecordHashes_CurrentHashrateUsesTheAggregateHashCount()
+    {
+        var stats = new MiningStatistics();
+        Thread.Sleep(20);
+        stats.RecordHashes(100, TimeSpan.Zero);
+        Thread.Sleep(20);
+        stats.RecordHashes(100, TimeSpan.Zero);
+
+        Assert.InRange(
+            Math.Abs(stats.CurrentHashrate - stats.AverageHashrate),
+            0,
+            stats.AverageHashrate * 0.1);
+    }
 }

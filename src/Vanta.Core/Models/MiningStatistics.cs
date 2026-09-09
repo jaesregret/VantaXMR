@@ -10,27 +10,18 @@ public sealed class MiningStatistics
     private long _rejectedShares;
     private int _activeWorkers;
     private DateTimeOffset? _lastShareTime;
-    private double _currentHashrate;
-
     public double CurrentHashrate
     {
         get
         {
             lock (_sync)
             {
-                return _currentHashrate;
-            }
-        }
-        private set
-        {
-            lock (_sync)
-            {
-                _currentHashrate = value;
+                return HashrateCalculator.Calculate(_totalHashes, DateTimeOffset.UtcNow - _startedAt);
             }
         }
     }
 
-    public double AverageHashrate => HashrateCalculator.Calculate(_totalHashes, Uptime);
+    public double AverageHashrate => CurrentHashrate;
 
     public long AcceptedShares
     {
@@ -106,7 +97,6 @@ public sealed class MiningStatistics
         lock (_sync)
         {
             _totalHashes += hashes;
-            _currentHashrate = HashrateCalculator.Calculate(hashes, elapsed <= TimeSpan.Zero ? TimeSpan.FromSeconds(1) : elapsed);
         }
     }
 

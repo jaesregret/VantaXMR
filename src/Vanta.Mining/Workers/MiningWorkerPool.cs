@@ -1,5 +1,4 @@
 using System.Buffers.Binary;
-using System.Diagnostics;
 using Vanta.Core;
 using Vanta.Network;
 
@@ -7,14 +6,17 @@ namespace Vanta.Mining;
 
 public sealed class MiningWorkerPool : IDisposable
 {
-    private readonly List<Task> _workers = new();
+    private readonly List<Thread> _workers = new();
     private readonly IMiningAlgorithm _algorithm;
     private readonly MiningStatistics _statistics;
     private readonly Func<PoolShare, CancellationToken, Task> _submitShare;
     private readonly Func<IMiningAlgorithm>? _algorithmFactory;
     private readonly object _jobLock = new();
+    private readonly object _lifecycleLock = new();
     private readonly int _workerCount;
     private PoolJob? _currentJob;
+    private CancellationTokenSource? _workerCancellation;
+    private ManualResetEventSlim? _startGate;
     private bool _disposed;
 
     public MiningWorkerPool(
@@ -40,40 +42,91 @@ public sealed class MiningWorkerPool : IDisposable
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        if (_workers.Count != 0) return Task.CompletedTask;
-        for (var index = 0; index < _workerCount; index++)
+        lock (_lifecycleLock)
         {
-            var workerIndex = index;
-            _workers.Add(Task.Run(() => WorkerLoopAsync(workerIndex, cancellationToken), cancellationToken));
+            ObjectDisposedException.ThrowIf(_disposed, this);
+            if (_workers.Count != 0)
+            {
+                return Task.CompletedTask;
+            }
+
+            _workerCancellation = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _startGate = new ManualResetEventSlim(false);
+            using var workersReady = new CountdownEvent(_workerCount);
+
+            for (var index = 0; index < _workerCount; index++)
+            {
+                var workerIndex = index;
+                var worker = new Thread(() => WorkerLoop(workerIndex, _workerCancellation.Token, workersReady, _startGate))
+                {
+                    IsBackground = true,
+                    Name = $"Vanta mining worker {workerIndex}"
+                };
+                _workers.Add(worker);
+                worker.Start();
+            }
+
+            try
+            {
+                workersReady.Wait(cancellationToken);
+                _startGate.Set();
+            }
+            catch
+            {
+                _workerCancellation.Cancel();
+                _startGate.Set();
+                JoinWorkers();
+                throw;
+            }
         }
+
         return Task.CompletedTask;
     }
 
     public void Dispose()
     {
-        if (_disposed) return;
-        _disposed = true;
+        lock (_lifecycleLock)
+        {
+            if (_disposed) return;
+            _disposed = true;
+            _workerCancellation?.Cancel();
+            _startGate?.Set();
+        }
+
+        JoinWorkers();
+        _workerCancellation?.Dispose();
+        _startGate?.Dispose();
         _algorithm.Dispose();
+        _statistics.ActiveWorkers = 0;
     }
 
-    private async Task WorkerLoopAsync(int workerIndex, CancellationToken cancellationToken)
+    private void WorkerLoop(
+        int workerIndex,
+        CancellationToken cancellationToken,
+        CountdownEvent workersReady,
+        ManualResetEventSlim startGate)
     {
         PoolJob? localJob = null;
         byte[]? blob = null;
         var hash = new byte[32];
-        var workerAlgorithm = _algorithmFactory?.Invoke() ?? _algorithm;
+        IMiningAlgorithm? workerAlgorithm = null;
+        var ready = false;
         uint nonce = (uint)workerIndex;
-        var stopwatch = Stopwatch.StartNew();
 
         try
         {
+            workerAlgorithm = _algorithmFactory?.Invoke() ?? _algorithm;
+            workersReady.Signal();
+            ready = true;
+            startGate.Wait(cancellationToken);
+
             while (!cancellationToken.IsCancellationRequested)
             {
                 PoolJob? job;
                 lock (_jobLock) job = _currentJob;
                 if (job is null)
                 {
-                    await Task.Delay(50, cancellationToken);
+                    cancellationToken.WaitHandle.WaitOne(TimeSpan.FromMilliseconds(50));
                     continue;
                 }
 
@@ -88,8 +141,7 @@ public sealed class MiningWorkerPool : IDisposable
 
                 BinaryPrimitives.WriteUInt32LittleEndian(blob.AsSpan(39, 4), nonce);
                 workerAlgorithm.Hash(blob, hash);
-                _statistics.RecordHashes(1, stopwatch.Elapsed);
-                stopwatch.Restart();
+                _statistics.RecordHashes(1, TimeSpan.Zero);
 
                 if (MeetsTarget(hash, job.Target))
                 {
@@ -100,17 +152,40 @@ public sealed class MiningWorkerPool : IDisposable
                         Nonce = Convert.ToHexString(blob.AsSpan(39, 4)).ToLowerInvariant(),
                         HashHex = Convert.ToHexString(hash).ToLowerInvariant()
                     };
-                    await _submitShare(share, cancellationToken);
+                    _submitShare(share, cancellationToken).GetAwaiter().GetResult();
                 }
 
-                nonce++;
+                nonce += (uint)_workerCount;
             }
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Mining worker {workerIndex} stopped: {ex.Message}");
         }
         finally
         {
-            if (!ReferenceEquals(workerAlgorithm, _algorithm))
+            if (!ready)
+            {
+                workersReady.Signal();
+            }
+
+            if (workerAlgorithm is not null && !ReferenceEquals(workerAlgorithm, _algorithm))
             {
                 workerAlgorithm.Dispose();
+            }
+        }
+    }
+
+    private void JoinWorkers()
+    {
+        foreach (var worker in _workers)
+        {
+            if (worker != Thread.CurrentThread)
+            {
+                worker.Join();
             }
         }
     }
